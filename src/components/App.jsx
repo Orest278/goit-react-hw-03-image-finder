@@ -14,7 +14,8 @@ export class App extends Component {
       images: [],
       selectedImage: null,
       page: 1,
-      isLoading: false,
+		isLoading: false,
+	  totalHits: 0,
     };
   }
 
@@ -43,7 +44,8 @@ export class App extends Component {
       );
       const data = await response.json();
       this.setState((prevState) => ({
-        images: [...prevState.images, ...data.hits],
+		  images: [...prevState.images, ...data.hits],
+		  totalHits: data.totalHits,
       }));
     } catch (error) {
       console.error('Error fetching images:', error);
@@ -56,7 +58,8 @@ export class App extends Component {
     this.setState({
       searchQuery: query,
       images: [],
-      page: 1,
+		page: 1,
+	  totalHits: 0,
     });
   };
 
@@ -75,16 +78,17 @@ export class App extends Component {
   };
 
   render() {
-    const { images, isLoading, selectedImage} = this.state;
+	  const { images, isLoading, selectedImage, totalHits, page } = this.state;
+	  const showLoadMoreButton = images.length > 0 && !isLoading && totalHits > page*12
 
     return (
       <div className={s.App}>
         <Searchbar onSubmitHandler={this.handleSearchSubmit} />
         <ImageGallery images={images} onImageClick={this.handleImageClick} />
         {isLoading && <Loader />}
-        {images.length > 0 && !isLoading && (
-          <Button onClick={this.handleLoadMore} />
-        )}
+			{images.length > 0 && !isLoading}
+          {showLoadMoreButton && <Button onClick={this.handleLoadMore} />}
+        
         {selectedImage && (
           <Modal imageUrl={selectedImage.largeImageURL} onClose={this.handleModalClose} />
         )} 
